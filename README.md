@@ -1,27 +1,59 @@
 # ViewChildrenChanges
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.0-next.11.
+This reproduces a difference in behavior between Ivy and VE.
 
-## Development server
+The component is a simple `ngFor` and a `ViewChildren` query on the generated elements.
+An `update` counter is updated every time the query's `changes` observable emits.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+```typescript
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements AfterViewInit {
 
-## Code scaffolding
+  updates = 0;
+  @ViewChildren('div') divs: QueryList<HTMLDivElement>;
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+  users = [
+    { name: 'Bob' },
+    { name: 'Alice' }
+  ];
 
-## Build
+  ngAfterViewInit() {
+    this.divs.changes.subscribe(_ => this.updates++);
+  }
+}
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+A unit test checks it:
 
-## Running unit tests
+```typescript
+it('should update 1 time', () => {
+  const fixture = TestBed.createComponent(AppComponent);
+  const app = fixture.componentInstance;
+  fixture.detectChanges();
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+  expect(app.updates).toBe(0);
 
-## Running end-to-end tests
+  // update a user
+  app.users[0] = { name: 'Jen' };
+  fixture.detectChanges();
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+  expect(fixture.nativeElement.querySelector('div').textContent).toContain('Jen');
+  expect(app.updates).toBe(1);
+});
+```
 
-## Further help
+This tests runs fine in VE (`enableIvy: false` in `angular.json`), but fails with Ivy.
+To repro:
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+```
+npm i
+ng test
+# test succeeds
+# switch enableIvy to true
+ng test
+# test fails with Expected 0 to be 1.
+```

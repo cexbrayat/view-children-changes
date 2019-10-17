@@ -10,22 +10,18 @@ describe('AppComponent', () => {
     }).compileComponents();
   }));
 
-  it('should create the app', () => {
+  it('should update 1 time', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'view-children-changes'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('view-children-changes');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
     fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('view-children-changes app is running!');
+
+    expect(app.updates).toBe(0);
+
+    // update a user
+    app.users[0] = { name: 'Jen' };
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('div').textContent).toContain('Jen');
+    expect(app.updates).toBe(1);
   });
 });
