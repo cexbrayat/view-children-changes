@@ -6,6 +6,10 @@ The component is a simple `ngFor` and a `ViewChildren` query on the generated el
 An `update` counter is updated every time the query's `changes` observable emits.
 
 ```typescript
+@Directive({ selector: 'div' })
+export class DivDirective {
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -14,7 +18,7 @@ An `update` counter is updated every time the query's `changes` observable emits
 export class AppComponent implements AfterViewInit {
 
   updates = 0;
-  @ViewChildren('div') divs: QueryList<HTMLDivElement>;
+  @ViewChildren(DivDirective) divs: QueryList<HTMLDivElement>;
 
   users = [
     { name: 'Bob' },
@@ -57,3 +61,7 @@ ng test
 ng test
 # test fails with Expected 0 to be 1.
 ```
+
+##UPDATE
+
+The test must declare `DivDirective` in Ivy, and it was not necessary in VE.

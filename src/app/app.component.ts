@@ -1,4 +1,8 @@
-import { Component, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
+import { Component, Directive, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
+
+@Directive({ selector: 'div' })
+export class DivDirective {
+}
 
 @Component({
   selector: 'app-root',
@@ -8,7 +12,7 @@ import { Component, ViewChildren, QueryList, AfterViewInit } from '@angular/core
 export class AppComponent implements AfterViewInit {
 
   updates = 0;
-  @ViewChildren('div') divs: QueryList<HTMLDivElement>;
+  @ViewChildren(DivDirective) divs: QueryList<HTMLDivElement>;
 
   users = [
     { name: 'Bob' },
